@@ -1,0 +1,12 @@
+{
+  "name": "mini-3d",
+  "version": "1.0.0",
+  "description": "a lib of 3d graph by canvas",
+  "main": "index.js",
+  "author": "easonzero",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^1.12.2"
+  },
+  "dependencies": {}
+}
