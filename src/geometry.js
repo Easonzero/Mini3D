@@ -15,6 +15,16 @@ class Vec3{
             this.z+vec3.z
         )
     }
+
+    set(x,y,z){
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    toVec4(){
+        return $V([this.x,this.y,this.z,1])
+    }
 }
 
 class Vec2{

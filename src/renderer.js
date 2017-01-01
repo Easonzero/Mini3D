@@ -3,6 +3,7 @@
  */
 let Shader = require('./shader');
 let {CanvasRenderer} = require('./render/index');
+let Color = require('./color');
 
 class Renderer {
     constructor(type,container,width,height){
@@ -20,23 +21,22 @@ class Renderer {
     }
 
     render(scence){
-        this.context.clear();
+        this.context.clear(this.width,this.height);
         for(let object of scence.objects){
             for(let face of object.faces){
-                let vecs = [], color = face.color;
+                let vecs = [], color = new Color(0x000000ff);
                 for(let index of face.vecs){
                     let d2 = this.shader.vertex(
-                        object.vecs[index].add(object.position),
+                        object._M.x(object.vecs[index].toVec4()).add(object.position.toVec4()),
                         face.color,
                         scence.camera.M
                     );
-                    console.log(d2[0])
                     vecs.push(d2[0]);
-                    color.add(d2[1])
+                    color.add(d2[1]);
                 }
                 color.divide(face.vecs.length);
                 this.context.surface(vecs);
-                this.context.fill(color);
+                this.context.stroke(color);
             }
         }
     }

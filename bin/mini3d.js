@@ -49,17 +49,17 @@
 	 */
 	let geometry = __webpack_require__(1);
 	let renderer = __webpack_require__(2);
-	let shape = __webpack_require__(6);
-	let scence = __webpack_require__(9);
-	let {camera,cameraConfig} = __webpack_require__(10);
+	let shape = __webpack_require__(7);
+	let scence = __webpack_require__(10);
+	let {Camera,CameraConfig} = __webpack_require__(11);
 
 	window.Mini = window.Mini3D = {
 	    Geometry : geometry,
 	    Renderer : renderer,
 	    Shape : shape,
 	    Scence : scence,
-	    Camera : camera,
-	    CameraConfig : cameraConfig
+	    Camera : Camera,
+	    CameraConfig : CameraConfig
 	};
 
 
@@ -83,6 +83,16 @@
 	            this.y+vec3.y,
 	            this.z+vec3.z
 	        )
+	    }
+
+	    set(x,y,z){
+	        this.x = x;
+	        this.y = y;
+	        this.z = z;
+	    }
+
+	    toVec4(){
+	        return $V([this.x,this.y,this.z,1])
 	    }
 	}
 
@@ -115,6 +125,7 @@
 	 */
 	let Shader = __webpack_require__(3);
 	let {CanvasRenderer} = __webpack_require__(4);
+	let Color = __webpack_require__(6);
 
 	class Renderer {
 	    constructor(type,container,width,height){
@@ -132,23 +143,22 @@
 	    }
 
 	    render(scence){
-	        this.context.clear();
+	        this.context.clear(this.width,this.height);
 	        for(let object of scence.objects){
 	            for(let face of object.faces){
-	                let vecs = [], color = face.color;
+	                let vecs = [], color = new Color(0x000000ff);
 	                for(let index of face.vecs){
 	                    let d2 = this.shader.vertex(
-	                        object.vecs[index].add(object.position),
+	                        object._M.x(object.vecs[index].toVec4()).add(object.position.toVec4()),
 	                        face.color,
 	                        scence.camera.M
 	                    );
-	                    console.log(d2[0])
 	                    vecs.push(d2[0]);
-	                    color.add(d2[1])
+	                    color.add(d2[1]);
 	                }
 	                color.divide(face.vecs.length);
 	                this.context.surface(vecs);
-	                this.context.fill(color);
+	                this.context.stroke(color);
 	            }
 	        }
 	    }
@@ -161,20 +171,27 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * Created by eason on 17-1-1.
+	 */
+	/**
 	 * Created by eason on 16-12-28.
 	 */
 	let {Vec2} = __webpack_require__(1);
 
 	class Shader {
 	    constructor(width,height){
-	        this.height = height;
-	        this.width = width;
+	        this.M = $M([
+	            [      1,       0,0, (width-1)/2],
+	            [      0,      -1,0,(height-1)/2],
+	            [      0,       0,1,           0],
+	            [      0,       0,0,           1]
+	        ])
 	    }
+
 	    vertex(vec,color,M){
-	        let v = $V([vec.x,vec.y,vec.z,1]);
-	        let out = M.x(v);
+	        let out = this.M.x(M).x(vec);
 	        return [
-	            new Vec2(out.e(1),this.height/2+out.e(2)),
+	            new Vec2(out.e(1)/out.e(4),out.e(2)/out.e(4)),
 	            color
 	        ];
 	    }
@@ -217,7 +234,7 @@
 	    }
 
 	    fill(color){
-	        this.ctx.fillStyle=`rgba(${color[0]},${color[1]},${color[2]},${color[3]})`;
+	        this.ctx.fillStyle=`rgba(${color.r},${color.g},${color.b},${color.a})`;
 	        this.ctx.fill();
 	        return this;
 	    }
@@ -250,15 +267,48 @@
 
 /***/ },
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	/**
 	 * Created by eason on 16-12-31.
 	 */
-	let Cube = __webpack_require__(7);
-	module.exports = {
-	    Cube:Cube
-	};
+	class Color{
+	    constructor(color){
+	        if(color>>24==0){
+	            color = color<<8|0xff;
+	        }
+
+	        this.r = color>>24&0xff;
+	        this.g = color>>16&0xff;
+	        this.b = color>>8&0xff;
+	        this.a = color&0xff;
+	    }
+
+	    static copy(color){
+	        let _color = new Color(0xffffff);
+	        _color.r = color.r;
+	        _color.g = color.g;
+	        _color.b = color.b;
+	        _color.a = color.a;
+	        return _color;
+	    }
+
+	    add(color){
+	        this.r+=color.r;
+	        this.g+=color.g;
+	        this.b+=color.b;
+	        this.a+=color.a;
+	    }
+
+	    divide(num){
+	        this.r/=num;
+	        this.g/=num;
+	        this.b/=num;
+	        this.a/=num;
+	    }
+	}
+
+	module.exports = Color;
 
 /***/ },
 /* 7 */
@@ -267,10 +317,25 @@
 	/**
 	 * Created by eason on 16-12-31.
 	 */
+	let Cube = __webpack_require__(8);
+	module.exports = {
+	    Cube:Cube
+	};
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Created by eason on 16-12-31.
+	 */
 	let {Face} = __webpack_require__(1);
-	let Color = __webpack_require__(8);
-	class Cube{
+	let Color = __webpack_require__(6);
+	let Transformable = __webpack_require__(9);
+
+	class Cube extends Transformable{
 	    constructor(center,size){
+	        super();
 	        this.type = 'shape';
 
 	        let d = size/2;
@@ -294,7 +359,7 @@
 	            new Color(0xff00ffff),
 	            new Color(0x00ff00ff),
 	            new Color(0x00ffffff),
-	            new Color(0xeeffffff),
+	            new Color(0x00ff00ff),
 	        ];
 
 	        this.faces = [
@@ -311,49 +376,94 @@
 	module.exports = Cube;
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports) {
 
 	/**
-	 * Created by eason on 16-12-31.
+	 * Created by eason on 17-1-1.
 	 */
-	class Color{
-	    constructor(color){
-	        if(color>>24==0){
-	            color <<= 8;
-	        }
+	function convertRad(deg){
+	    return deg*Math.PI/180;
+	}
 
-	        this.r = color>>24&0xff;
-	        this.g = color>>16&0xff;
-	        this.b = color>>8&0xff;
-	        this.a = color&0xff;
+	class Transformable {
+	    constructor(){
+	        this._M = Matrix.I(4);
 	    }
 
-	    add(color){
-	        this.r+=color.r;
-	        this.g+=color.g;
-	        this.b+=color.b;
-	        this.a+=color.a;
+	    transform(m){
+	        this._M = this._M.x(m);
 	    }
 
-	    divide(num){
-	        this.r/=num;
-	        this.g/=num;
-	        this.b/=num;
-	        this.a/=num;
+	    scale(x,y,z){
+	        this.transform($M([
+	            [x,0,0,0],
+	            [0,y,0,0],
+	            [0,0,z,0],
+	            [0,0,0,1]
+	        ]));
+	        return this;
+	    }
+
+	    rotX(deg){
+	        let rad = convertRad(deg);
+	        this.transform($M([
+	            [1,             0,              0, 0],
+	            [0, Math.cos(rad), -Math.sin(rad), 0],
+	            [0, Math.sin(rad),  Math.cos(rad), 0],
+	            [0,             0,              0, 1]
+	        ]));
+	        return this;
+	    }
+
+	    rotY(deg){
+	        let rad = convertRad(deg);
+	        this.transform($M([
+	            [ Math.cos(rad), 0, Math.sin(rad), 0],
+	            [             0, 1,             0, 0],
+	            [-Math.sin(rad), 0, Math.cos(rad), 0],
+	            [             0, 0,             0, 1]
+	        ]));
+	        return this;
+	    }
+
+	    rotZ(deg){
+	        let rad = convertRad(deg);
+	        this.transform($M([
+	            [Math.cos(rad), -Math.sin(rad), 0, 0],
+	            [Math.sin(rad),  Math.cos(rad), 0, 0],
+	            [            0,              0, 1, 0],
+	            [            0,              0, 0, 1]
+	        ]));
+	        return this;
+	    }
+
+	    translate(x,y,z){
+	        this.transform($M([
+	            [1,0,0,x],
+	            [0,1,0,y],
+	            [0,0,1,z],
+	            [0,0,0,1]
+	        ]));
+	        return this;
+	    }
+
+	    reset(){
+	        this._M = $M.I(4);
+	        return this;
 	    }
 	}
 
-	module.exports = Color;
+	module.exports = Transformable;
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Created by eason on 16-12-31.
 	 */
-	let {Camera,CameraConfig} = __webpack_require__(10);
+	let {Camera,CameraConfig} = __webpack_require__(11);
 
 	class Scence {
 	    constructor(){
@@ -380,26 +490,30 @@
 	module.exports = Scence;
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Created by eason on 16-12-31.
 	 */
 	let {Vec3} = __webpack_require__(1);
-	let {Perspective} = __webpack_require__(11);
+	let {Perspective,Orthophoto} = __webpack_require__(12);
+	let Transformable = __webpack_require__(9);
 
 	class CameraConfig{
 	    static build(type){
 	        switch (type.toUpperCase()){
 	            case 'PERSPECTIVE':
 	                return new Perspective();
+	            case 'ORTHOPHOTO':
+	                return new Orthophoto();
 	        }
 	    }
 	}
 
-	class Camera{
+	class Camera extends Transformable{
 	    constructor(config){
+	        super();
 	        this.type = 'camera';
 	        this.position = new Vec3(0,0,-50);
 	        this.dir = new Vec3(0,0,1);
@@ -411,10 +525,9 @@
 
 	    update(){
 	        let w = $V([this.dir.x,this.dir.y,this.dir.z]).x(-1/Math.hypot(this.dir.x,this.dir.y,this.dir.z));
-	        let u = w.cross($V([0,1,0]));
+	        let u = $V([0,1,0]).cross(w);
 	        u = u.x(1/Math.hypot(u.e(1),u.e(2),u.e(3)));
 	        let v = w.cross(u);
-
 	        let r = $M([
 	            [u.e(1),u.e(2),u.e(3),0],
 	            [v.e(1),v.e(2),v.e(3),0],
@@ -452,37 +565,59 @@
 	};
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Created by eason on 16-12-31.
 	 */
-	let Perspective = __webpack_require__(12);
+	let Perspective = __webpack_require__(13);
+	let Orthophoto = __webpack_require__(14);
 
 	module.exports = {
-	  Perspective:Perspective
+	  Perspective:Perspective,
+	  Orthophoto:Orthophoto
 	};
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 	/**
 	 * Created by eason on 16-12-31.
 	 */
 	class Perspective{
-	    init(left=-1, right=1, bottom=-1, top=1, near=1, far=100){
+	    init(deg = 90, r = 700/500, near=1, far=100){
 	        return $M([
-	            [2*near/(right-left),                  0,(right+left)/(right-left),                    0],
-	            [                  0,2*near/(top-bottom),(top+bottom)/(top-bottom),                    0],
-	            [                  0,                  0,   -(far+near)/(far-near),far*near*2/(far-near)],
-	            [                  0,                  0,                       -1,                    0]
+	            [near,                0,                    0,                     0],
+	            [                    0,near,                    0,                     0],
+	            [                    0,                0,near+far,-far*near],
+	            [                    0,                0,                    1,                     0]
 	        ]);
 	    }
 	}
 
 	module.exports = Perspective;
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	/**
+	 * Created by eason on 17-1-1.
+	 */
+	class Orthophoto{
+	    init(l=-1,r=1,b=-1,t=1,n=1,f=100){
+	        return $M([
+	            [2/(r-l),      0,      0,-(l+r)/2],
+	            [      0,2/(t-b),      0,-(t+b)/2],
+	            [      0,      0,2/(n-f),-(n+f)/2],
+	            [      0,      0,      0,       1]
+	        ]);
+	    }
+	}
+
+	module.exports = Orthophoto;
 
 /***/ }
 /******/ ]);

@@ -3,8 +3,11 @@
  */
 let {Face} = require('../geometry');
 let Color = require('../color');
-class Cube{
+let Transformable = require('../transformable');
+
+class Cube extends Transformable{
     constructor(center,size){
+        super();
         this.type = 'shape';
 
         let d = size/2;
@@ -28,7 +31,7 @@ class Cube{
             new Color(0xff00ffff),
             new Color(0x00ff00ff),
             new Color(0x00ffffff),
-            new Color(0xeeffffff),
+            new Color(0x00ff00ff),
         ];
 
         this.faces = [

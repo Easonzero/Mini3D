@@ -16,7 +16,7 @@ class CanvasRenderer {
     }
 
     fill(color){
-        this.ctx.fillStyle=`rgba(${color[0]},${color[1]},${color[2]},${color[3]})`;
+        this.ctx.fillStyle=`rgba(${color.r},${color.g},${color.b},${color.a})`;
         this.ctx.fill();
         return this;
     }

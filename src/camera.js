@@ -2,19 +2,23 @@
  * Created by eason on 16-12-31.
  */
 let {Vec3} = require('./geometry');
-let {Perspective} = require('./camera/index');
+let {Perspective,Orthophoto} = require('./camera/index');
+let Transformable = require('./transformable');
 
 class CameraConfig{
     static build(type){
         switch (type.toUpperCase()){
             case 'PERSPECTIVE':
                 return new Perspective();
+            case 'ORTHOPHOTO':
+                return new Orthophoto();
         }
     }
 }
 
-class Camera{
+class Camera extends Transformable{
     constructor(config){
+        super();
         this.type = 'camera';
         this.position = new Vec3(0,0,-50);
         this.dir = new Vec3(0,0,1);
@@ -26,10 +30,9 @@ class Camera{
 
     update(){
         let w = $V([this.dir.x,this.dir.y,this.dir.z]).x(-1/Math.hypot(this.dir.x,this.dir.y,this.dir.z));
-        let u = w.cross($V([0,1,0]));
+        let u = $V([0,1,0]).cross(w);
         u = u.x(1/Math.hypot(u.e(1),u.e(2),u.e(3)));
         let v = w.cross(u);
-
         let r = $M([
             [u.e(1),u.e(2),u.e(3),0],
             [v.e(1),v.e(2),v.e(3),0],
