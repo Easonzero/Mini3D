@@ -10,7 +10,7 @@ let Camera = Mini.Camera;
 let CameraConfig = Mini.CameraConfig;
 
 let renderer = new Mini.Renderer('canvas',body,700,500);
-let camera = new Camera(CameraConfig.build('orthophoto').init());
+let camera = new Camera(CameraConfig.build('perspective').init());
 camera.position.set(0,0,-50);
 let scence = new Scence();
 let cube = new Cube(new Vec3(0,0,0),50);
