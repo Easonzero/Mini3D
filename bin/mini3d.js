@@ -215,7 +215,7 @@
 	        });
 
 	        for(let renderModel of renderModels){
-	            this.context.surface(renderModel.vecs).fill(renderModel.color.int());
+	            this.context.surface(renderModel.vecs).stroke(new Color(0x000000));
 	        }
 	    }
 	}
