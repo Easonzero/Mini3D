@@ -4,7 +4,7 @@
 /**
  * Created by eason on 16-12-28.
  */
-let {Vec2} = require('./geometry');
+let {Vec3} = require('./geometry');
 
 class Shader {
     constructor(width,height){
@@ -19,7 +19,7 @@ class Shader {
     vertex(vec,color,M){
         let out = this.M.x(M).x(vec);
         return [
-            new Vec2(out.e(1)/out.e(4),out.e(2)/out.e(4)),
+            new Vec3(out.e(1)/out.e(4),out.e(2)/out.e(4),out.e(3)/out.e(4)),
             color
         ];
     }

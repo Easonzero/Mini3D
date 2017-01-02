@@ -5,6 +5,27 @@ let Shader = require('./shader');
 let {CanvasRenderer} = require('./render/index');
 let Color = require('./color');
 
+class RenderModel {
+    constructor(vecs,color){
+        this.vecs = vecs;
+        this.color = color;
+
+        this.update();
+    }
+
+    static getCenterZ(vecs){
+        let sum=0;
+        for(let vec of vecs){
+            sum+=vec.z;
+        }
+        return sum/vecs.length||0;
+    }
+
+    update(){
+        this.centerZ = RenderModel.getCenterZ(this.vecs);
+    }
+}
+
 class Renderer {
     constructor(type,container,width,height){
         this.width = width;
@@ -22,22 +43,33 @@ class Renderer {
 
     render(scence){
         this.context.clear(this.width,this.height);
+        let renderModels = [];
         for(let object of scence.objects){
             for(let face of object.faces){
-                let vecs = [], color = new Color(0x000000ff);
-                for(let index of face.vecs){
-                    let d2 = this.shader.vertex(
-                        object._M.x(object.vecs[index].toVec4()).add(object.position.toVec4()),
+                if(face.normal.multi(scence.camera.dir)>0) continue;
+                let renderModel = new RenderModel([],new Color(0x000000ff));
+                for(let vec of face.vecs){
+                    let rv = this.shader.vertex(
+                        object._M.x(vec.toVec4()).add(object.position.toVec4()),
                         face.color,
                         scence.camera.M
                     );
-                    vecs.push(d2[0]);
-                    color.add(d2[1]);
+                    renderModel.vecs.push(rv[0]);
+                    renderModel.color.add(rv[1]);
                 }
-                color.divide(face.vecs.length);
-                this.context.surface(vecs);
-                this.context.stroke(color);
+                renderModel.color.divide(face.vecs.length);
+                renderModel.update();
+                renderModels.push(renderModel);
             }
+        }
+
+        renderModels.sort((a,b)=>{
+            return a.centerZ - b.centerZ;
+        });
+
+        for(let renderModel of renderModels){
+            this.context.surface(renderModel.vecs);
+            this.context.fill(renderModel.color);
         }
     }
 }

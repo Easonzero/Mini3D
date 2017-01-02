@@ -17,12 +17,14 @@ class CanvasRenderer {
 
     fill(color){
         this.ctx.fillStyle=`rgba(${color.r},${color.g},${color.b},${color.a})`;
+        this.ctx.strokeStyle=`rgba(${color.r},${color.g},${color.b},${color.a})`;
         this.ctx.fill();
+        this.ctx.stroke();
         return this;
     }
 
     stroke(color){
-        this.ctx.strokeStyle=`rgba(${color[0]},${color[1]},${color[2]},${color[3]})`;
+        this.ctx.strokeStyle=`rgba(${color.r},${color.g},${color.b},${color.a})`;
         this.ctx.stroke();
         return this;
     }

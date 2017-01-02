@@ -85,10 +85,32 @@
 	        )
 	    }
 
+	    substact(vec3){
+	        return new Vec3(
+	            this.x-vec3.x,
+	            this.y-vec3.y,
+	            this.z-vec3.z
+	        )
+	    }
+
+	    cross(vec3){
+	        return new Vec3(
+	            this.y*vec3.z-vec3.y*this.z,
+	            this.x*vec3.z-vec3.x*this.z,
+	            this.x*vec3.y-vec3.x*this.y
+	        )
+	    }
+
+	    multi(vec3){
+	        return this.x*vec3.x+this.y*vec3.y+this.z*vec3.z;
+	    }
+
 	    set(x,y,z){
 	        this.x = x;
 	        this.y = y;
 	        this.z = z;
+
+	        return this;
 	    }
 
 	    toVec4(){
@@ -96,23 +118,16 @@
 	    }
 	}
 
-	class Vec2{
-	    constructor(x,y){
-	        this.x = Math.round(x);
-	        this.y = Math.round(y);
-	    }
-	}
-
 	class Face{
 	    constructor(vecs,color){
 	        this.vecs = vecs;
 	        this.color = color;
+	        this.normal = vecs[0].substact(vecs[1]).cross(vecs[1].substact(vecs[2]));
 	    }
 	}
 
 	module.exports = {
 	    Vec3 : Vec3,
-	    Vec2 : Vec2,
 	    Face : Face
 	};
 
@@ -126,6 +141,27 @@
 	let Shader = __webpack_require__(3);
 	let {CanvasRenderer} = __webpack_require__(4);
 	let Color = __webpack_require__(6);
+
+	class RenderModel {
+	    constructor(vecs,color){
+	        this.vecs = vecs;
+	        this.color = color;
+
+	        this.update();
+	    }
+
+	    static getCenterZ(vecs){
+	        let sum=0;
+	        for(let vec of vecs){
+	            sum+=vec.z;
+	        }
+	        return sum/vecs.length||0;
+	    }
+
+	    update(){
+	        this.centerZ = RenderModel.getCenterZ(this.vecs);
+	    }
+	}
 
 	class Renderer {
 	    constructor(type,container,width,height){
@@ -144,22 +180,33 @@
 
 	    render(scence){
 	        this.context.clear(this.width,this.height);
+	        let renderModels = [];
 	        for(let object of scence.objects){
 	            for(let face of object.faces){
-	                let vecs = [], color = new Color(0x000000ff);
-	                for(let index of face.vecs){
-	                    let d2 = this.shader.vertex(
-	                        object._M.x(object.vecs[index].toVec4()).add(object.position.toVec4()),
+	                if(face.normal.multi(scence.camera.dir)>0) continue;
+	                let renderModel = new RenderModel([],new Color(0x000000ff));
+	                for(let vec of face.vecs){
+	                    let rv = this.shader.vertex(
+	                        object._M.x(vec.toVec4()).add(object.position.toVec4()),
 	                        face.color,
 	                        scence.camera.M
 	                    );
-	                    vecs.push(d2[0]);
-	                    color.add(d2[1]);
+	                    renderModel.vecs.push(rv[0]);
+	                    renderModel.color.add(rv[1]);
 	                }
-	                color.divide(face.vecs.length);
-	                this.context.surface(vecs);
-	                this.context.stroke(color);
+	                renderModel.color.divide(face.vecs.length);
+	                renderModel.update();
+	                renderModels.push(renderModel);
 	            }
+	        }
+
+	        renderModels.sort((a,b)=>{
+	            return a.centerZ - b.centerZ;
+	        });
+
+	        for(let renderModel of renderModels){
+	            this.context.surface(renderModel.vecs);
+	            this.context.fill(renderModel.color);
 	        }
 	    }
 	}
@@ -176,7 +223,7 @@
 	/**
 	 * Created by eason on 16-12-28.
 	 */
-	let {Vec2} = __webpack_require__(1);
+	let {Vec3} = __webpack_require__(1);
 
 	class Shader {
 	    constructor(width,height){
@@ -191,7 +238,7 @@
 	    vertex(vec,color,M){
 	        let out = this.M.x(M).x(vec);
 	        return [
-	            new Vec2(out.e(1)/out.e(4),out.e(2)/out.e(4)),
+	            new Vec3(out.e(1)/out.e(4),out.e(2)/out.e(4),out.e(3)/out.e(4)),
 	            color
 	        ];
 	    }
@@ -235,12 +282,14 @@
 
 	    fill(color){
 	        this.ctx.fillStyle=`rgba(${color.r},${color.g},${color.b},${color.a})`;
+	        this.ctx.strokeStyle=`rgba(${color.r},${color.g},${color.b},${color.a})`;
 	        this.ctx.fill();
+	        this.ctx.stroke();
 	        return this;
 	    }
 
 	    stroke(color){
-	        this.ctx.strokeStyle=`rgba(${color[0]},${color[1]},${color[2]},${color[3]})`;
+	        this.ctx.strokeStyle=`rgba(${color.r},${color.g},${color.b},${color.a})`;
 	        this.ctx.stroke();
 	        return this;
 	    }
@@ -363,12 +412,18 @@
 	        ];
 
 	        this.faces = [
-	            new Face([4, 5, 1],this.color[0]),new Face([1, 0, 4],this.color[0]),//top
-	            new Face([4, 0, 2],this.color[1]),new Face([2, 6, 4],this.color[1]),//front
-	            new Face([1, 0, 2],this.color[2]),new Face([2, 3, 1],this.color[2]),//right
-	            new Face([5, 4, 6],this.color[3]),new Face([6, 7, 5],this.color[3]),//left
-	            new Face([5, 1, 3],this.color[4]),new Face([3, 7, 5],this.color[4]),//back
-	            new Face([7, 3, 2],this.color[5]),new Face([2, 6, 7],this.color[5])//bottom
+	            new Face([this.vecs[4], this.vecs[5], this.vecs[1]],this.color[0]),
+	            new Face([this.vecs[1], this.vecs[0], this.vecs[4]],this.color[0]),//top
+	            new Face([this.vecs[4], this.vecs[0], this.vecs[2]],this.color[1]),
+	            new Face([this.vecs[2], this.vecs[6], this.vecs[4]],this.color[1]),//front
+	            new Face([this.vecs[1], this.vecs[0], this.vecs[2]],this.color[2]),
+	            new Face([this.vecs[2], this.vecs[3], this.vecs[1]],this.color[2]),//right
+	            new Face([this.vecs[5], this.vecs[4], this.vecs[6]],this.color[3]),
+	            new Face([this.vecs[6], this.vecs[7], this.vecs[5]],this.color[3]),//left
+	            new Face([this.vecs[5], this.vecs[1], this.vecs[3]],this.color[4]),
+	            new Face([this.vecs[3], this.vecs[7], this.vecs[5]],this.color[4]),//back
+	            new Face([this.vecs[7], this.vecs[3], this.vecs[2]],this.color[5]),
+	            new Face([this.vecs[2], this.vecs[6], this.vecs[7]],this.color[5])//bottom
 	        ];
 	    }
 	}

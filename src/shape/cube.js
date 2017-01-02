@@ -35,12 +35,18 @@ class Cube extends Transformable{
         ];
 
         this.faces = [
-            new Face([4, 5, 1],this.color[0]),new Face([1, 0, 4],this.color[0]),//top
-            new Face([4, 0, 2],this.color[1]),new Face([2, 6, 4],this.color[1]),//front
-            new Face([1, 0, 2],this.color[2]),new Face([2, 3, 1],this.color[2]),//right
-            new Face([5, 4, 6],this.color[3]),new Face([6, 7, 5],this.color[3]),//left
-            new Face([5, 1, 3],this.color[4]),new Face([3, 7, 5],this.color[4]),//back
-            new Face([7, 3, 2],this.color[5]),new Face([2, 6, 7],this.color[5])//bottom
+            new Face([this.vecs[4], this.vecs[5], this.vecs[1]],this.color[0]),
+            new Face([this.vecs[1], this.vecs[0], this.vecs[4]],this.color[0]),//top
+            new Face([this.vecs[4], this.vecs[0], this.vecs[2]],this.color[1]),
+            new Face([this.vecs[2], this.vecs[6], this.vecs[4]],this.color[1]),//front
+            new Face([this.vecs[1], this.vecs[0], this.vecs[2]],this.color[2]),
+            new Face([this.vecs[2], this.vecs[3], this.vecs[1]],this.color[2]),//right
+            new Face([this.vecs[5], this.vecs[4], this.vecs[6]],this.color[3]),
+            new Face([this.vecs[6], this.vecs[7], this.vecs[5]],this.color[3]),//left
+            new Face([this.vecs[5], this.vecs[1], this.vecs[3]],this.color[4]),
+            new Face([this.vecs[3], this.vecs[7], this.vecs[5]],this.color[4]),//back
+            new Face([this.vecs[7], this.vecs[3], this.vecs[2]],this.color[5]),
+            new Face([this.vecs[2], this.vecs[6], this.vecs[7]],this.color[5])//bottom
         ];
     }
 }

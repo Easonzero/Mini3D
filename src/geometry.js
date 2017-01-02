@@ -16,10 +16,32 @@ class Vec3{
         )
     }
 
+    substact(vec3){
+        return new Vec3(
+            this.x-vec3.x,
+            this.y-vec3.y,
+            this.z-vec3.z
+        )
+    }
+
+    cross(vec3){
+        return new Vec3(
+            this.y*vec3.z-vec3.y*this.z,
+            this.x*vec3.z-vec3.x*this.z,
+            this.x*vec3.y-vec3.x*this.y
+        )
+    }
+
+    multi(vec3){
+        return this.x*vec3.x+this.y*vec3.y+this.z*vec3.z;
+    }
+
     set(x,y,z){
         this.x = x;
         this.y = y;
         this.z = z;
+
+        return this;
     }
 
     toVec4(){
@@ -27,22 +49,15 @@ class Vec3{
     }
 }
 
-class Vec2{
-    constructor(x,y){
-        this.x = Math.round(x);
-        this.y = Math.round(y);
-    }
-}
-
 class Face{
     constructor(vecs,color){
         this.vecs = vecs;
         this.color = color;
+        this.normal = vecs[0].substact(vecs[1]).cross(vecs[1].substact(vecs[2]));
     }
 }
 
 module.exports = {
     Vec3 : Vec3,
-    Vec2 : Vec2,
     Face : Face
 };
