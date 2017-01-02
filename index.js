@@ -6,6 +6,7 @@ let renderer = require('./src/renderer');
 let shape = require('./src/shape/index');
 let scence = require('./src/scence');
 let {Camera,CameraConfig} = require('./src/camera');
+let Light = require('./src/light');
 
 window.Mini = window.Mini3D = {
     Geometry : geometry,
@@ -13,5 +14,6 @@ window.Mini = window.Mini3D = {
     Shape : shape,
     Scence : scence,
     Camera : Camera,
-    CameraConfig : CameraConfig
+    CameraConfig : CameraConfig,
+    Light : Light
 };

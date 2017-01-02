@@ -2,11 +2,12 @@
  * Created by eason on 16-12-31.
  */
 let {Camera,CameraConfig} = require('./camera');
+let {AmbientLight} = require('./light');
 
 class Scence {
     constructor(){
         this.camera = new Camera(CameraConfig.build('perspective').init());
-        this.light = [];
+        this.lights = [new AmbientLight()];
         this.objects = [];
     }
 
@@ -15,8 +16,10 @@ class Scence {
             case 'camera':
                 this.camera = something;
                 break;
-            case 'light':
-                this.light.push(something);
+            case 'direct-light':
+            case 'point-light':
+            case 'ambient-light':
+                this.lights.push(something);
                 break;
             case 'shape':
                 this.objects.push(something);

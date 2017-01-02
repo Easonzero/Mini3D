@@ -8,19 +8,23 @@ let Vec3 = Mini.Geometry.Vec3;
 let Scence = Mini.Scence;
 let Camera = Mini.Camera;
 let CameraConfig = Mini.CameraConfig;
+let DirectLight = Mini.Light.DirectLight;
 
 let renderer = new Mini.Renderer('canvas',body,700,500);
+let scence = new Scence();
+let directLight = new DirectLight(1,new Vec3(-1,-1,1));
+scence.add(directLight);
 let camera = new Camera(CameraConfig.build('perspective').init());
 camera.position.set(0,0,-50);
-let scence = new Scence();
+scence.add(camera);
 let cube = new Cube(new Vec3(0,0,0),50);
 scence.add(cube);
-scence.add(camera);
 
 animate();
 
 function animate(){
    requestAnimationFrame(animate);
     renderer.render(scence);
-    cube.rotY(1).rotX(1).rotZ(1);
+
+    cube.rotX(1).rotZ(1);
 }

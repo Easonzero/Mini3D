@@ -31,7 +31,7 @@ class Cube extends Transformable{
             new Color(0xff00ff),
             new Color(0x00ff00),
             new Color(0x00ffff),
-            new Color(0x00ff00),
+            new Color(0xeeeeee),
         ];
 
         this.faces = [

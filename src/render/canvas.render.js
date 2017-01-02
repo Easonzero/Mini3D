@@ -40,6 +40,14 @@ class CanvasRenderer {
         return this;
     }
 
+    line(vec1,vec2){
+        this.ctx.beginPath();
+        this.ctx.moveTo(vec1.x,vec1.y);
+        this.ctx.lineTo(vec2.x,vec2.y);
+        this.ctx.closePath();
+        return this;
+    }
+
     cycle(center,r){
         this.ctx.beginPath();
         this.ctx.arc(center.x, center.y, r, 0, 2*Math.PI, true);

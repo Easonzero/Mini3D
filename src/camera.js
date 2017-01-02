@@ -29,14 +29,13 @@ class Camera extends Transformable{
     }
 
     update(){
-        let w = $V([this.dir.x,this.dir.y,this.dir.z]).x(-1/Math.hypot(this.dir.x,this.dir.y,this.dir.z));
-        let u = $V([0,1,0]).cross(w);
-        u = u.x(1/Math.hypot(u.e(1),u.e(2),u.e(3)));
+        let w = new Vec3(this.dir.x,this.dir.y,this.dir.z).normalize(-1);
+        let u = new Vec3(0,1,0).cross(w).normalize();
         let v = w.cross(u);
         let r = $M([
-            [u.e(1),u.e(2),u.e(3),0],
-            [v.e(1),v.e(2),v.e(3),0],
-            [w.e(1),w.e(2),w.e(3),0],
+            [u.x,u.y,u.z,0],
+            [v.x,v.y,v.z,0],
+            [w.x,w.y,w.z,0],
             [0     ,     0,     0,1]
         ]);
 

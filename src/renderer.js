@@ -51,15 +51,12 @@ class Renderer {
                 }
                 let renderModel = new RenderModel([],new Color(0x000000,0));
                 for(let vec of face.vecs){
-                    let rv = this.shader.vertex(
+                    renderModel.vecs.push(this.shader.vertex(
                         object._M.x(vec.toVec4()).add(object.position.toVec4()),
-                        face.color,
                         scence.camera.M
-                    );
-                    renderModel.vecs.push(rv[0]);
-                    renderModel.color.add(rv[1]);
+                    ));
                 }
-                renderModel.color.divide(face.vecs.length);
+                renderModel.color = this.shader.fragment(face.color,object._M.x(face.normal.toVec4()),...scence.lights);
                 renderModel.update();
                 renderModels.push(renderModel);
             }
@@ -70,8 +67,7 @@ class Renderer {
         });
 
         for(let renderModel of renderModels){
-            this.context.surface(renderModel.vecs);
-            this.context.fill(renderModel.color);
+            this.context.surface(renderModel.vecs).fill(renderModel.color.int());
         }
     }
 }

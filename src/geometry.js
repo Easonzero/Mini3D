@@ -32,8 +32,17 @@ class Vec3{
         )
     }
 
-    multi(vec3){
+    dot(vec3){
         return this.x*vec3.x+this.y*vec3.y+this.z*vec3.z;
+    }
+
+    normalize(c=1){
+        let l = Math.hypot(this.x,this.y,this.z)/c;
+        this.x /= l;
+        this.y /= l;
+        this.z /= l;
+
+        return this;
     }
 
     set(x,y,z){
@@ -53,7 +62,7 @@ class Face{
     constructor(vecs,color){
         this.vecs = vecs;
         this.color = color;
-        this.normal = vecs[0].substact(vecs[1]).cross(vecs[0].substact(vecs[2]));
+        this.normal = vecs[0].substact(vecs[1]).cross(vecs[0].substact(vecs[2])).normalize();
     }
 }
 

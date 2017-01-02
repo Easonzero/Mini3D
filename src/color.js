@@ -22,14 +22,32 @@ class Color{
         this.r+=color.r;
         this.g+=color.g;
         this.b+=color.b;
-        this.a+=color.a;
+
+        return this;
     }
 
     divide(num){
         this.r/=num;
         this.g/=num;
         this.b/=num;
-        this.a/=num;
+
+        return this;
+    }
+
+    multi(num){
+        this.r*=num;
+        this.g*=num;
+        this.b*=num;
+
+        return this;
+    }
+
+    int(){
+        this.r = Math.round(this.r);
+        this.g = Math.round(this.g);
+        this.b = Math.round(this.b);
+
+        return this;
     }
 }
 
