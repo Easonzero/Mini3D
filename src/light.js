@@ -4,40 +4,45 @@
 let Transformable = require('./transformable');
 
 class PointLight extends Transformable{
-    constructor(){
+    constructor(color=0xffffff,pos){
         super();
-        this.type='point-light'
+        this.type='point-light';
+
+        this.c = color/0xffffff;
+        this.position = pos;
     }
 
-    cal(color,n){
+    cal(n){
 
     }
 }
 
 class DirectLight extends Transformable{
-    constructor(cl=0.7,dir){
+    constructor(color=0xffffff,cl=0.7,dir){
         super();
         this.type='direct-light';
 
+        this.c = color/0xffffff;
         this.cl = cl;
         this.dir = dir.normalize();
     }
 
-    cal(color,n){
-        return color.multi(this.cl*Math.abs(n.dot(this.dir.toVec4())-1));
+    cal(n){
+        return this.c*this.cl*Math.abs(n.dot(this.dir.toVec4())-1);
     }
 }
 
 class AmbientLight extends Transformable{
-    constructor(ca=0.3){
+    constructor(color=0xffffff,ca=0.3){
         super();
         this.type='ambient-light';
 
+        this.c = color/0xffffff;
         this.ca = ca;
     }
 
-    cal(color,n){
-        return color.multi(this.ca);
+    cal(n){
+        return this.c*this.ca;
     }
 }
 

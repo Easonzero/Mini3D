@@ -12,7 +12,7 @@ let DirectLight = Mini.Light.DirectLight;
 
 let renderer = new Mini.Renderer('canvas',body,700,500);
 let scence = new Scence();
-let directLight = new DirectLight(1,new Vec3(-1,-1,1));
+let directLight = new DirectLight(0xffffff,1,new Vec3(-1,-1,1));
 scence.add(directLight);
 let camera = new Camera(CameraConfig.build('perspective').init());
 camera.position.set(0,0,-50);

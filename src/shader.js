@@ -23,18 +23,11 @@ class Shader {
     }
 
     fragment(color,n,...lights){
-        let out = new Color(0x000000);
+        let I = 0;
         for(let light of lights){
-            switch(light.type){
-                case 'direct-light':
-                case 'ambient-light':
-                    out.add(light.cal(Color.copy(color),n));
-                    break;
-                case 'point-light':
-                    break;
-            }
+            I += light.cal(n);
         }
-        return out;
+        return color.multi(I);
     }
 }
 

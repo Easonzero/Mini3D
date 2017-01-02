@@ -56,7 +56,7 @@ class Renderer {
                         scence.camera.M
                     ));
                 }
-                renderModel.color = this.shader.fragment(face.color,object._M.x(face.normal.toVec4()),...scence.lights);
+                renderModel.color = this.shader.fragment(Color.copy(face.color),object._M.x(face.normal.toVec4()),...scence.lights);
                 renderModel.update();
                 renderModels.push(renderModel);
             }

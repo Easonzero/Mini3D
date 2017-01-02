@@ -204,7 +204,7 @@
 	                        scence.camera.M
 	                    ));
 	                }
-	                renderModel.color = this.shader.fragment(face.color,object._M.x(face.normal.toVec4()),...scence.lights);
+	                renderModel.color = this.shader.fragment(Color.copy(face.color),object._M.x(face.normal.toVec4()),...scence.lights);
 	                renderModel.update();
 	                renderModels.push(renderModel);
 	            }
@@ -251,18 +251,11 @@
 	    }
 
 	    fragment(color,n,...lights){
-	        let out = new Color(0x000000);
+	        let I = 0;
 	        for(let light of lights){
-	            switch(light.type){
-	                case 'direct-light':
-	                case 'ambient-light':
-	                    out.add(light.cal(Color.copy(color),n));
-	                    break;
-	                case 'point-light':
-	                    break;
-	            }
+	            I += light.cal(n);
 	        }
-	        return out;
+	        return color.multi(I);
 	    }
 	}
 
@@ -731,40 +724,45 @@
 	let Transformable = __webpack_require__(9);
 
 	class PointLight extends Transformable{
-	    constructor(){
+	    constructor(color=0xffffff,pos){
 	        super();
-	        this.type='point-light'
+	        this.type='point-light';
+
+	        this.c = color/0xffffff;
+	        this.position = pos;
 	    }
 
-	    cal(color,n){
+	    cal(n){
 
 	    }
 	}
 
 	class DirectLight extends Transformable{
-	    constructor(cl=0.7,dir){
+	    constructor(color=0xffffff,cl=0.7,dir){
 	        super();
 	        this.type='direct-light';
 
+	        this.c = color/0xffffff;
 	        this.cl = cl;
 	        this.dir = dir.normalize();
 	    }
 
-	    cal(color,n){
-	        return color.multi(this.cl*Math.abs(n.dot(this.dir.toVec4())-1));
+	    cal(n){
+	        return this.c*this.cl*Math.abs(n.dot(this.dir.toVec4())-1);
 	    }
 	}
 
 	class AmbientLight extends Transformable{
-	    constructor(ca=0.3){
+	    constructor(color=0xffffff,ca=0.3){
 	        super();
 	        this.type='ambient-light';
 
+	        this.c = color/0xffffff;
 	        this.ca = ca;
 	    }
 
-	    cal(color,n){
-	        return color.multi(this.ca);
+	    cal(n){
+	        return this.c*this.ca;
 	    }
 	}
 
