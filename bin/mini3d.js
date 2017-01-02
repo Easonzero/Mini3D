@@ -122,7 +122,7 @@
 	    constructor(vecs,color){
 	        this.vecs = vecs;
 	        this.color = color;
-	        this.normal = vecs[0].substact(vecs[1]).cross(vecs[1].substact(vecs[2]));
+	        this.normal = vecs[0].substact(vecs[1]).cross(vecs[0].substact(vecs[2]));
 	    }
 	}
 
@@ -183,8 +183,10 @@
 	        let renderModels = [];
 	        for(let object of scence.objects){
 	            for(let face of object.faces){
-	                if(face.normal.multi(scence.camera.dir)>0) continue;
-	                let renderModel = new RenderModel([],new Color(0x000000ff));
+	                if(object._M.x(face.normal.toVec4()).dot(scence.camera.dir.toVec4())-1<=0) {
+	                    continue;
+	                }
+	                let renderModel = new RenderModel([],new Color(0x000000,0));
 	                for(let vec of face.vecs){
 	                    let rv = this.shader.vertex(
 	                        object._M.x(vec.toVec4()).add(object.position.toVec4()),
@@ -322,15 +324,11 @@
 	 * Created by eason on 16-12-31.
 	 */
 	class Color{
-	    constructor(color){
-	        if(color>>24==0){
-	            color = color<<8|0xff;
-	        }
-
-	        this.r = color>>24&0xff;
-	        this.g = color>>16&0xff;
-	        this.b = color>>8&0xff;
-	        this.a = color&0xff;
+	    constructor(color,a){
+	        this.r = color>>16&0xff;
+	        this.g = color>>8&0xff;
+	        this.b = color&0xff;
+	        this.a = a!==undefined?a:0xff;
 	    }
 
 	    static copy(color){
@@ -403,25 +401,25 @@
 	        ];
 
 	        this.color = [
-	            new Color(0xff0000ff),
-	            new Color(0xffff00ff),
-	            new Color(0xff00ffff),
-	            new Color(0x00ff00ff),
-	            new Color(0x00ffffff),
-	            new Color(0x00ff00ff),
+	            new Color(0xff0000),
+	            new Color(0xffff00),
+	            new Color(0xff00ff),
+	            new Color(0x00ff00),
+	            new Color(0x00ffff),
+	            new Color(0x00ff00),
 	        ];
 
 	        this.faces = [
-	            new Face([this.vecs[4], this.vecs[5], this.vecs[1]],this.color[0]),
-	            new Face([this.vecs[1], this.vecs[0], this.vecs[4]],this.color[0]),//top
+	            new Face([this.vecs[4], this.vecs[0], this.vecs[1]],this.color[0]),
+	            new Face([this.vecs[1], this.vecs[5], this.vecs[4]],this.color[0]),//top
 	            new Face([this.vecs[4], this.vecs[0], this.vecs[2]],this.color[1]),
 	            new Face([this.vecs[2], this.vecs[6], this.vecs[4]],this.color[1]),//front
-	            new Face([this.vecs[1], this.vecs[0], this.vecs[2]],this.color[2]),
-	            new Face([this.vecs[2], this.vecs[3], this.vecs[1]],this.color[2]),//right
+	            new Face([this.vecs[2], this.vecs[0], this.vecs[1]],this.color[2]),
+	            new Face([this.vecs[1], this.vecs[3], this.vecs[2]],this.color[2]),//right
 	            new Face([this.vecs[5], this.vecs[4], this.vecs[6]],this.color[3]),
 	            new Face([this.vecs[6], this.vecs[7], this.vecs[5]],this.color[3]),//left
-	            new Face([this.vecs[5], this.vecs[1], this.vecs[3]],this.color[4]),
-	            new Face([this.vecs[3], this.vecs[7], this.vecs[5]],this.color[4]),//back
+	            new Face([this.vecs[5], this.vecs[7], this.vecs[3]],this.color[4]),
+	            new Face([this.vecs[3], this.vecs[1], this.vecs[5]],this.color[4]),//back
 	            new Face([this.vecs[7], this.vecs[3], this.vecs[2]],this.color[5]),
 	            new Face([this.vecs[2], this.vecs[6], this.vecs[7]],this.color[5])//bottom
 	        ];

@@ -53,7 +53,7 @@ class Face{
     constructor(vecs,color){
         this.vecs = vecs;
         this.color = color;
-        this.normal = vecs[0].substact(vecs[1]).cross(vecs[1].substact(vecs[2]));
+        this.normal = vecs[0].substact(vecs[1]).cross(vecs[0].substact(vecs[2]));
     }
 }
 

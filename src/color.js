@@ -2,15 +2,11 @@
  * Created by eason on 16-12-31.
  */
 class Color{
-    constructor(color){
-        if(color>>24==0){
-            color = color<<8|0xff;
-        }
-
-        this.r = color>>24&0xff;
-        this.g = color>>16&0xff;
-        this.b = color>>8&0xff;
-        this.a = color&0xff;
+    constructor(color,a){
+        this.r = color>>16&0xff;
+        this.g = color>>8&0xff;
+        this.b = color&0xff;
+        this.a = a!==undefined?a:0xff;
     }
 
     static copy(color){

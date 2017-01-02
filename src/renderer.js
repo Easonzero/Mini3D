@@ -46,8 +46,10 @@ class Renderer {
         let renderModels = [];
         for(let object of scence.objects){
             for(let face of object.faces){
-                if(face.normal.multi(scence.camera.dir)>0) continue;
-                let renderModel = new RenderModel([],new Color(0x000000ff));
+                if(object._M.x(face.normal.toVec4()).dot(scence.camera.dir.toVec4())-1<=0) {
+                    continue;
+                }
+                let renderModel = new RenderModel([],new Color(0x000000,0));
                 for(let vec of face.vecs){
                     let rv = this.shader.vertex(
                         object._M.x(vec.toVec4()).add(object.position.toVec4()),
