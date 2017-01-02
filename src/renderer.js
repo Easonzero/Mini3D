@@ -62,9 +62,7 @@ class Renderer {
             }
         }
 
-        renderModels.sort((a,b)=>{
-            return a.centerZ - b.centerZ;
-        });
+        this.context.zsort(renderModels);
 
         for(let renderModel of renderModels){
             this.context.surface(renderModel.vecs).stroke(new Color(0x000000));

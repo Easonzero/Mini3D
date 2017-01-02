@@ -48,6 +48,12 @@ class CanvasRenderer {
         return this;
     }
 
+    zsort(renderModels){
+        renderModels.sort((a,b)=>{
+            return a.centerZ - b.centerZ;
+        });
+    }
+
     cycle(center,r){
         this.ctx.beginPath();
         this.ctx.arc(center.x, center.y, r, 0, 2*Math.PI, true);
