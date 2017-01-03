@@ -6,11 +6,11 @@ Mini3D是一个基于H5 canvas2d(未来将支持更多)的3d图形引擎。
 
 |立方体1|立方体2|
 | :---: | :---: |
-| ![demo0](./img/demo0.png) | ![demo1](./img/demo1.png) | 
+| ![demo0](./img/demo_0.png) | ![demo1](./img/demo_1.png) | 
 
 |球1|球2|
 | :---: | :---: |
-| ![demo3](./img/demo3.png) | ![demo4](./img/demo4.png) | 
+| ![demo3](./img/demo_3.png) | ![demo4](./img/demo_4.png) | 
 
 ## 目前已经完成的部分：
 
