@@ -28,7 +28,7 @@ class DirectLight extends Transformable{
     }
 
     cal(n){
-        return this.c*this.cl*Math.abs(n.dot(this.dir.toVec4())-1);
+        return this.c*this.cl*Math.max(0,n.dot(this._M.x(this.dir.toVec4()))-1);
     }
 }
 

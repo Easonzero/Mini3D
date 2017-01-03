@@ -27,13 +27,21 @@ class Vec3{
     cross(vec3){
         return new Vec3(
             this.y*vec3.z-vec3.y*this.z,
-            this.x*vec3.z-vec3.x*this.z,
+            -this.x*vec3.z+vec3.x*this.z,
             this.x*vec3.y-vec3.x*this.y
         )
     }
 
     dot(vec3){
         return this.x*vec3.x+this.y*vec3.y+this.z*vec3.z;
+    }
+
+    multi(num){
+        return new Vec3(
+            this.x*num,
+            this.y*num,
+            this.z*num
+        )
     }
 
     normalize(c=1){
@@ -53,8 +61,8 @@ class Vec3{
         return this;
     }
 
-    toVec4(){
-        return $V([this.x,this.y,this.z,1])
+    toVec4(c=1){
+        return $V([this.x,this.y,this.z,c])
     }
 }
 
@@ -62,7 +70,7 @@ class Face{
     constructor(vecs,color){
         this.vecs = vecs;
         this.color = color;
-        this.normal = vecs[0].substact(vecs[1]).cross(vecs[0].substact(vecs[2])).normalize();
+        this.normal = vecs[1].substact(vecs[0]).cross(vecs[2].substact(vecs[1])).normalize(-1);
     }
 }
 

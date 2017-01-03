@@ -9,6 +9,7 @@ class RenderModel {
     constructor(vecs,color){
         this.vecs = vecs;
         this.color = color;
+        this.ns = [];
 
         this.update();
     }
@@ -46,15 +47,21 @@ class Renderer {
         let renderModels = [];
         for(let object of scence.objects){
             for(let face of object.faces){
-                if(object._M.x(face.normal.toVec4()).dot(scence.camera.dir.toVec4())-1<=0) {
+                if(object._M.x(face.normal.toVec4()).dot(scence.camera.dir.toVec4())-1>=0) {
                     continue;
                 }
                 let renderModel = new RenderModel([],new Color(0x000000,0));
                 for(let vec of face.vecs){
-                    renderModel.vecs.push(this.shader.vertex(
-                        object._M.x(vec.toVec4()).add(object.position.toVec4()),
+                    let out = this.shader.vertex(
+                        object._M.x(vec.toVec4()).add(object.position.toVec4(0)),
                         scence.camera.M
-                    ));
+                    );
+                    let n = this.shader.vertex(
+                        object._M.x(vec.add(face.normal.multi(10)).toVec4()).add(object.position.toVec4(0)),
+                        scence.camera.M
+                    );
+                    renderModel.vecs.push(out);
+                    renderModel.ns.push([out,n]);
                 }
                 renderModel.color = this.shader.fragment(Color.copy(face.color),object._M.x(face.normal.toVec4()),...scence.lights);
                 renderModel.update();
@@ -65,7 +72,11 @@ class Renderer {
         this.context.zsort(renderModels);
 
         for(let renderModel of renderModels){
-            this.context.surface(renderModel.vecs).stroke(new Color(0x000000));
+            this.context.surface(renderModel.vecs).fill(renderModel.color.int());
+
+            // for(let n of renderModel.ns){
+            //     this.context.line(n[0],n[1]).stroke(new Color(0x000000));
+            // }
         }
     }
 }

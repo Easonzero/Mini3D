@@ -2,7 +2,7 @@
  * Created by eason on 16-12-31.
  */
 class Perspective{
-    init(deg = 0.9, r = 500/500, near=1, far=100){
+    init(deg = 1, r = 500/500, near=1, far=100){
         let tan = Math.tan(deg*Math.PI/360);
         return $M([
             [1/(r*tan),    0,                    0,                     0],

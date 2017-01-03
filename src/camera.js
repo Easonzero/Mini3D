@@ -20,7 +20,7 @@ class Camera extends Transformable{
     constructor(config){
         super();
         this.type = 'camera';
-        this.position = new Vec3(0,0,-50);
+        this.position = new Vec3(0,0,-100);
         this.dir = new Vec3(0,0,1);
 
         this.config = config;
