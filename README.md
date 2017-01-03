@@ -5,9 +5,11 @@ A graphics engine based on the H5 canvas2d
 Mini3D是一个基于H5 canvas2d(未来将支持更多)的3d图形引擎。
 
 |立方体1|立方体2|
-| ---- | ----- |
-| ![demo0](./img/demo0.png) | ![demo1](./img/demo1.png) |
+| :---: | :---: |
+| ![demo0](./img/demo0.png) | ![demo1](./img/demo1.png) | 
+
 |球1|球2|
+| :---: | :---: |
 | ![demo3](./img/demo3.png) | ![demo4](./img/demo4.png) | 
 
 ## 目前已经完成的部分：
@@ -37,6 +39,8 @@ ps.本项目的初衷是实践图形学知识，同时也为擅长js的同学学
 <script src="http://cdn.bootcss.com/sylvester/0.1.3/sylvester.min.js"></script>
 
 ```
+
+下面通过一段简单的代码创建一个旋转的立方体
 
 ```js
 let body = document.getElementsByTagName('body')[0];
