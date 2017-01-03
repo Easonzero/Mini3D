@@ -212,12 +212,12 @@
 	                        object._M.x(vec.toVec4()).add(object.position.toVec4(0)),
 	                        scence.camera.M
 	                    );
-	                    let n = this.shader.vertex(
-	                        object._M.x(vec.add(face.normal.multi(10)).toVec4()).add(object.position.toVec4(0)),
-	                        scence.camera.M
-	                    );
+	                    // let n = this.shader.vertex(
+	                    //     object._M.x(vec.add(face.normal.multi(10)).toVec4()).add(object.position.toVec4(0)),
+	                    //     scence.camera.M
+	                    // );
 	                    renderModel.vecs.push(out);
-	                    renderModel.ns.push([out,n]);
+	                    // renderModel.ns.push([out,n]);
 	                }
 	                renderModel.color = this.shader.fragment(Color.copy(face.color),object._M.x(face.normal.toVec4()),...scence.lights);
 	                renderModel.update();
@@ -474,12 +474,12 @@
 	        ];
 
 	        this.faces = [
-	            new Face([this.vecs[4], this.vecs[0], this.vecs[1], this.vecs[5]],this.color[0]),//top
+	            new Face([this.vecs[4], this.vecs[5], this.vecs[1], this.vecs[0]],this.color[0]),//top
 	            new Face([this.vecs[4], this.vecs[0], this.vecs[2], this.vecs[6]],this.color[1]),//front
 	            new Face([this.vecs[2], this.vecs[0], this.vecs[1], this.vecs[3]],this.color[2]),//right
 	            new Face([this.vecs[5], this.vecs[4], this.vecs[6], this.vecs[7]],this.color[3]),//left
 	            new Face([this.vecs[5], this.vecs[7], this.vecs[3], this.vecs[1]],this.color[4]),//back
-	            new Face([this.vecs[7], this.vecs[3], this.vecs[2], this.vecs[6]],this.color[5]),//bottom
+	            new Face([this.vecs[7], this.vecs[6], this.vecs[2], this.vecs[3]],this.color[5]),//bottom
 	        ];
 	    }
 	}

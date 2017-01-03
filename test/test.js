@@ -3,7 +3,7 @@
  */
 let body = document.getElementsByTagName('body')[0];
 
-let Sphere = Mini.Shape.Sphere;
+let Cube = Mini.Shape.Cube;
 let Vec3 = Mini.Geometry.Vec3;
 let Scence = Mini.Scence;
 let Camera = Mini.Camera;
@@ -17,13 +17,13 @@ scence.add(directLight);
 let camera = new Camera(CameraConfig.build('perspective').init());
 camera.position.set(0,0,-50);
 scence.add(camera);
-let sphere = new Sphere(new Vec3(0,0,0),80,9,0xffffff);
-scence.add(sphere);
+let cube = new Cube(new Vec3(0,0,0),80);
+scence.add(cube);
 
 animate();
 
 function animate(){
     requestAnimationFrame(animate);
     renderer.render(scence);
-    sphere.rotY(1).rotZ(1).rotX(1);
+    cube.rotY(1).rotX(1);
 }
