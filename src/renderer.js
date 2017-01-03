@@ -56,12 +56,12 @@ class Renderer {
                         object._M.x(vec.toVec4()).add(object.position.toVec4(0)),
                         scence.camera.M
                     );
-                    let n = this.shader.vertex(
-                        object._M.x(vec.add(face.normal.multi(10)).toVec4()).add(object.position.toVec4(0)),
-                        scence.camera.M
-                    );
+                    // let n = this.shader.vertex(
+                    //     object._M.x(vec.add(face.normal.multi(10)).toVec4()).add(object.position.toVec4(0)),
+                    //     scence.camera.M
+                    // );
                     renderModel.vecs.push(out);
-                    renderModel.ns.push([out,n]);
+                    // renderModel.ns.push([out,n]);
                 }
                 renderModel.color = this.shader.fragment(Color.copy(face.color),object._M.x(face.normal.toVec4()),...scence.lights);
                 renderModel.update();
