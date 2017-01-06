@@ -51,8 +51,8 @@
 	let renderer = __webpack_require__(2);
 	let shape = __webpack_require__(7);
 	let scence = __webpack_require__(11);
-	let {Camera,CameraConfig} = __webpack_require__(12);
-	let Light = __webpack_require__(16);
+	let Camera = __webpack_require__(12);
+	let Light = __webpack_require__(13);
 
 	window.Mini = window.Mini3D = {
 	    Geometry : geometry,
@@ -60,7 +60,6 @@
 	    Shape : shape,
 	    Scence : scence,
 	    Camera : Camera,
-	    CameraConfig : CameraConfig,
 	    Light : Light
 	};
 
@@ -72,6 +71,10 @@
 	/**
 	 * Created by eason on 16-12-28.
 	 */
+	function convertRad(deg){
+	    return deg*Math.PI/180;
+	}
+
 	class Vec3{
 	    constructor(x,y,z){
 	        this.x = x;
@@ -115,6 +118,14 @@
 	        )
 	    }
 
+	    divide(num){
+	        return new Vec3(
+	            this.x/num,
+	            this.y/num,
+	            this.z/num
+	        )
+	    }
+
 	    normalize(c=1){
 	        let l = Math.hypot(this.x,this.y,this.z)/c;
 	        this.x /= l;
@@ -124,10 +135,39 @@
 	        return this;
 	    }
 
+	    rotX(deg){
+	        let rad = convertRad(deg),_y = this.y;
+	        this.y = Math.cos(rad)*this.y-Math.sin(rad)*this.z;
+	        this.z = Math.sin(rad)*_y+Math.cos(rad)*this.z;
+	        return this;
+	    }
+
+	    rotY(deg){
+	        let rad = convertRad(deg),_x=this.x;
+	        this.x = Math.cos(rad)*this.x+Math.sin(rad)*this.z;
+	        this.z = -Math.sin(rad)*_x+Math.cos(rad)*this.z;
+	        return this;
+	    }
+
+	    rotZ(deg){
+	        let rad = convertRad(deg),_x=this.x;
+	        this.x = Math.cos(rad)*this.x-Math.sin(rad)*this.y;
+	        this.y = Math.sin(rad)*_x+Math.cos(rad)*this.y;
+	        return this;
+	    }
+
 	    set(x,y,z){
 	        this.x = x;
 	        this.y = y;
 	        this.z = z;
+
+	        return this;
+	    }
+
+	    int(){
+	        this.x = (0.5 + this.x) << 0;
+	        this.y = (0.5 + this.y) << 0;
+	        this.z = (0.5 + this.z) << 0;
 
 	        return this;
 	    }
@@ -199,7 +239,7 @@
 	    }
 
 	    render(scence){
-	        this.context.clear(this.width,this.height);
+	        this.context.clear(this.width,this.height,new Color(0x000000));
 	        let renderModels = [];
 	        for(let object of scence.objects){
 	            for(let face of object.faces){
@@ -212,14 +252,14 @@
 	                        object._M.x(vec.toVec4()).add(object.position.toVec4(0)),
 	                        scence.camera.M
 	                    );
-	                    // let n = this.shader.vertex(
-	                    //     object._M.x(vec.add(face.normal.multi(10)).toVec4()).add(object.position.toVec4(0)),
-	                    //     scence.camera.M
-	                    // );
-	                    renderModel.vecs.push(out);
-	                    // renderModel.ns.push([out,n]);
+	                    let n = this.shader.vertex(
+	                        object._M.x(vec.add(face.normal.multi(face.random)).toVec4()).add(object.position.toVec4(0)),
+	                        scence.camera.M
+	                    );
+	                    renderModel.vecs.push(out.int());
+	                    renderModel.ns.push(n);
 	                }
-	                renderModel.color = this.shader.fragment(Color.copy(face.color),object._M.x(face.normal.toVec4()),...scence.lights);
+	                renderModel.color = this.shader.fragment(Color.copy(face.color),object._M.x(face.normal.toVec4()),...scence.lights).int();
 	                renderModel.update();
 	                renderModels.push(renderModel);
 	            }
@@ -228,11 +268,15 @@
 	        this.context.zsort(renderModels);
 
 	        for(let renderModel of renderModels){
-	            this.context.surface(renderModel.vecs).fill(renderModel.color.int());
-
-	            // for(let n of renderModel.ns){
-	            //     this.context.line(n[0],n[1]).stroke(new Color(0x000000));
-	            // }
+	            //this.context.surface(renderModel.vecs).stroke(new Color(0x000000));
+	            let vec = new Vec3(0,0,0),n = new Vec3(0,0,0);
+	            for(let index=0; index < renderModel.ns.length; index++){
+	                vec = vec.add(renderModel.vecs[index]);
+	                n = n.add(renderModel.ns[index]);
+	            }
+	            vec = vec.divide(renderModel.ns.length);
+	            n = n.divide(renderModel.ns.length);
+	            this.context.line(vec,n).stroke(new Color(0xffffff));
 	        }
 	    }
 	}
@@ -327,9 +371,9 @@
 	    }
 
 	    int(){
-	        this.r = Math.round(this.r);
-	        this.g = Math.round(this.g);
-	        this.b = Math.round(this.b);
+	        this.r = (0.5 + this.r) << 0;
+	        this.g = (0.5 + this.g) << 0;
+	        this.b = (0.5 + this.b) << 0;
 
 	        return this;
 	    }
@@ -367,8 +411,10 @@
 	        this.ctx = node.getContext('2d');
 	    }
 
-	    clear(width,height){
+	    clear(width,height,color){
 	        this.ctx.clearRect(0,0,width,height);
+	        this.ctx.fillStyle=`rgba(${color.r},${color.g},${color.b},${color.a})`;
+	        this.ctx.fillRect(0,0,width,height);
 	    }
 
 	    fill(color){
@@ -400,7 +446,6 @@
 	        this.ctx.beginPath();
 	        this.ctx.moveTo(vec1.x,vec1.y);
 	        this.ctx.lineTo(vec2.x,vec2.y);
-	        this.ctx.closePath();
 	        return this;
 	    }
 
@@ -506,7 +551,7 @@
 	        this._M = this._M.x(m);
 	    }
 
-	    scale(x,y,z){
+	    scale(x=1,y=1,z=1){
 	        this.transform($M([
 	            [x,0,0,0],
 	            [0,y,0,0],
@@ -549,7 +594,7 @@
 	        return this;
 	    }
 
-	    translate(x,y,z){
+	    translate(x=0,y=0,z=0){
 	        this.transform($M([
 	            [1,0,0,x],
 	            [0,1,0,y],
@@ -591,7 +636,7 @@
 	        let d = 0.5*Math.PI/s;
 	        let q = [];
 
-	        for(let i=0;i<=Math.PI*2;i+=d){
+	        for(let i=0;i<=Math.PI*2+1;i+=d){
 	            for(let j=-0.5*Math.PI;j<=0.5*Math.PI;j+=d){
 	                let index = this.vecs.length;
 
@@ -601,7 +646,7 @@
 	                    Math.cos(j)*Math.cos(i)*r
 	                );
 
-	                if(q.length>=2*s){
+	                if(q.length>=2*s+1){
 	                    let one = q.shift();
 	                    if(j!==0.5*Math.PI){
 	                        this.faces.push(new Face([
@@ -632,12 +677,12 @@
 	/**
 	 * Created by eason on 16-12-31.
 	 */
-	let {Camera,CameraConfig} = __webpack_require__(12);
-	let {AmbientLight} = __webpack_require__(16);
+	let {PerspectiveCamera} = __webpack_require__(12);
+	let {AmbientLight} = __webpack_require__(13);
 
 	class Scence {
 	    constructor(){
-	        this.camera = new Camera(CameraConfig.build('perspective').init());
+	        this.camera = new PerspectiveCamera();
 	        this.lights = [new AmbientLight()];
 	        this.objects = [];
 	    }
@@ -669,30 +714,14 @@
 	 * Created by eason on 16-12-31.
 	 */
 	let {Vec3} = __webpack_require__(1);
-	let {Perspective,Orthophoto} = __webpack_require__(13);
 	let Transformable = __webpack_require__(9);
 
-	class CameraConfig{
-	    static build(type){
-	        switch (type.toUpperCase()){
-	            case 'PERSPECTIVE':
-	                return new Perspective();
-	            case 'ORTHOPHOTO':
-	                return new Orthophoto();
-	        }
-	    }
-	}
-
 	class Camera extends Transformable{
-	    constructor(config){
+	    constructor(){
 	        super();
 	        this.type = 'camera';
 	        this.position = new Vec3(0,0,-100);
 	        this.dir = new Vec3(0,0,1);
-
-	        this.config = config;
-
-	        this.update();
 	    }
 
 	    update(){
@@ -712,7 +741,7 @@
 	            [0,0,1,-this.position.z],
 	            [0,0,0,               1]
 	        ]);
-	        this.M = this.config.x(r).x(t);
+	        this.M = this.projection.x(r).x(t);
 	    }
 
 	    lookAt(aim){
@@ -730,9 +759,47 @@
 	    }
 	}
 
+	class PerspectiveCamera extends Camera{
+	    constructor(deg=90,r=1,n=50,f=100){
+	        super();
+	        let tan = Math.tan(deg*Math.PI/360);
+	        let tann = tan*n;
+
+	        this.project(-tann,tann,-tann*r,tann*r,n,f);
+	    }
+
+	    project(l=-1,r=1,b=-1,t=1,n=1,f=100){
+	        this.projection = $M([
+	            [2*n,              0,(l+r)/(l-r),          0],
+	            [  0,2*n*(t-b)/(r-l),(t+b)/(t-b),          0],
+	            [  0,              0,(f+n)/(n-f),f*n*2/(f-n)],
+	            [  0,              0,          1,          0]
+	        ]);
+	        this.update();
+	    }
+	}
+
+	class OrthophotoCamera extends Camera{
+	    constructor(deg,r,n,f){
+	        super();
+
+	        this.project();
+	    }
+
+	    project(l=-1,r=1,b=-1,t=1,n=1,f=100){
+	        this.projection = $M([
+	            [2/(r-l),      0,      0,-(l+r)/2],
+	            [      0,2/(t-b),      0,-(t+b)/2],
+	            [      0,      0,2/(n-f),-(n+f)/2],
+	            [      0,      0,      0,       1]
+	        ]);
+	        this.update();
+	    }
+	}
+
 	module.exports = {
-	    CameraConfig : CameraConfig,
-	    Camera : Camera
+	    PerspectiveCamera : PerspectiveCamera,
+	    OrthophotoCamera : OrthophotoCamera
 	};
 
 /***/ },
@@ -742,66 +809,10 @@
 	/**
 	 * Created by eason on 16-12-31.
 	 */
-	let Perspective = __webpack_require__(14);
-	let Orthophoto = __webpack_require__(15);
-
-	module.exports = {
-	  Perspective:Perspective,
-	  Orthophoto:Orthophoto
-	};
-
-/***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-	/**
-	 * Created by eason on 16-12-31.
-	 */
-	class Perspective{
-	    init(deg = 1, r = 500/500, near=1, far=100){
-	        let tan = Math.tan(deg*Math.PI/360);
-	        return $M([
-	            [1/(r*tan),    0,                    0,                     0],
-	            [        0,1/tan,                    0,                     0],
-	            [        0,    0,(far+near)/(far-near),-far*near*2/(far-near)],
-	            [        0,    0,                    1,                     0]
-	        ]);
-	    }
-	}
-
-	module.exports = Perspective;
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	/**
-	 * Created by eason on 17-1-1.
-	 */
-	class Orthophoto{
-	    init(l=-1,r=1,b=-1,t=1,n=1,f=100){
-	        return $M([
-	            [2/(r-l),      0,      0,-(l+r)/2],
-	            [      0,2/(t-b),      0,-(t+b)/2],
-	            [      0,      0,2/(n-f),-(n+f)/2],
-	            [      0,      0,      0,       1]
-	        ]);
-	    }
-	}
-
-	module.exports = Orthophoto;
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Created by eason on 16-12-31.
-	 */
 	let Transformable = __webpack_require__(9);
 
 	class PointLight extends Transformable{
-	    constructor(color=0xffffff,pos){
+	    constructor(color=0xffffff,cl=0.7,pos){
 	        super();
 	        this.type='point-light';
 
@@ -809,8 +820,10 @@
 	        this.position = pos;
 	    }
 
-	    cal(n){
-
+	    cal(n,vec){
+	        let dir = vec.substact(this.position);
+	        let d = dir.x*dir.x+dir.y*dir.y+dir.z*dir.z;
+	        return this.c*this.cl*Math.max(0,n.dot(this._M.x(dir.toVec4())-1))/(d*d);
 	    }
 	}
 

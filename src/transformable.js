@@ -14,7 +14,7 @@ class Transformable {
         this._M = this._M.x(m);
     }
 
-    scale(x,y,z){
+    scale(x=1,y=1,z=1){
         this.transform($M([
             [x,0,0,0],
             [0,y,0,0],
@@ -57,7 +57,7 @@ class Transformable {
         return this;
     }
 
-    translate(x,y,z){
+    translate(x=0,y=0,z=0){
         this.transform($M([
             [1,0,0,x],
             [0,1,0,y],

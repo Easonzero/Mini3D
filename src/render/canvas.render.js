@@ -11,8 +11,10 @@ class CanvasRenderer {
         this.ctx = node.getContext('2d');
     }
 
-    clear(width,height){
+    clear(width,height,color){
         this.ctx.clearRect(0,0,width,height);
+        this.ctx.fillStyle=`rgba(${color.r},${color.g},${color.b},${color.a})`;
+        this.ctx.fillRect(0,0,width,height);
     }
 
     fill(color){
@@ -44,7 +46,6 @@ class CanvasRenderer {
         this.ctx.beginPath();
         this.ctx.moveTo(vec1.x,vec1.y);
         this.ctx.lineTo(vec2.x,vec2.y);
-        this.ctx.closePath();
         return this;
     }
 

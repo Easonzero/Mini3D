@@ -18,7 +18,7 @@ class Sphere extends Transformable{
         let d = 0.5*Math.PI/s;
         let q = [];
 
-        for(let i=0;i<=Math.PI*2;i+=d){
+        for(let i=0;i<=Math.PI*2+1;i+=d){
             for(let j=-0.5*Math.PI;j<=0.5*Math.PI;j+=d){
                 let index = this.vecs.length;
 
@@ -28,7 +28,7 @@ class Sphere extends Transformable{
                     Math.cos(j)*Math.cos(i)*r
                 );
 
-                if(q.length>=2*s){
+                if(q.length>=2*s+1){
                     let one = q.shift();
                     if(j!==0.5*Math.PI){
                         this.faces.push(new Face([

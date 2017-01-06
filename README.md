@@ -4,7 +4,7 @@ A graphics engine based on the H5 canvas2d
 
 Mini3D是一个基于H5 canvas2d(未来将支持更多)的3d图形引擎。
 
-|立方体1|立方体2|
+|立方体|法线球|
 | :---: | :---: |
 | ![demo0](./img/demo_0.png) | ![demo1](./img/demo_1.png) | 
 

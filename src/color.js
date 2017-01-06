@@ -43,9 +43,9 @@ class Color{
     }
 
     int(){
-        this.r = Math.round(this.r);
-        this.g = Math.round(this.g);
-        this.b = Math.round(this.b);
+        this.r = (0.5 + this.r) << 0;
+        this.g = (0.5 + this.g) << 0;
+        this.b = (0.5 + this.b) << 0;
 
         return this;
     }

@@ -1,6 +1,10 @@
 /**
  * Created by eason on 16-12-28.
  */
+function convertRad(deg){
+    return deg*Math.PI/180;
+}
+
 class Vec3{
     constructor(x,y,z){
         this.x = x;
@@ -44,6 +48,14 @@ class Vec3{
         )
     }
 
+    divide(num){
+        return new Vec3(
+            this.x/num,
+            this.y/num,
+            this.z/num
+        )
+    }
+
     normalize(c=1){
         let l = Math.hypot(this.x,this.y,this.z)/c;
         this.x /= l;
@@ -53,10 +65,39 @@ class Vec3{
         return this;
     }
 
+    rotX(deg){
+        let rad = convertRad(deg),_y = this.y;
+        this.y = Math.cos(rad)*this.y-Math.sin(rad)*this.z;
+        this.z = Math.sin(rad)*_y+Math.cos(rad)*this.z;
+        return this;
+    }
+
+    rotY(deg){
+        let rad = convertRad(deg),_x=this.x;
+        this.x = Math.cos(rad)*this.x+Math.sin(rad)*this.z;
+        this.z = -Math.sin(rad)*_x+Math.cos(rad)*this.z;
+        return this;
+    }
+
+    rotZ(deg){
+        let rad = convertRad(deg),_x=this.x;
+        this.x = Math.cos(rad)*this.x-Math.sin(rad)*this.y;
+        this.y = Math.sin(rad)*_x+Math.cos(rad)*this.y;
+        return this;
+    }
+
     set(x,y,z){
         this.x = x;
         this.y = y;
         this.z = z;
+
+        return this;
+    }
+
+    int(){
+        this.x = (0.5 + this.x) << 0;
+        this.y = (0.5 + this.y) << 0;
+        this.z = (0.5 + this.z) << 0;
 
         return this;
     }

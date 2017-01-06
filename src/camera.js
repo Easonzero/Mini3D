@@ -2,30 +2,14 @@
  * Created by eason on 16-12-31.
  */
 let {Vec3} = require('./geometry');
-let {Perspective,Orthophoto} = require('./camera/index');
 let Transformable = require('./transformable');
 
-class CameraConfig{
-    static build(type){
-        switch (type.toUpperCase()){
-            case 'PERSPECTIVE':
-                return new Perspective();
-            case 'ORTHOPHOTO':
-                return new Orthophoto();
-        }
-    }
-}
-
 class Camera extends Transformable{
-    constructor(config){
+    constructor(){
         super();
         this.type = 'camera';
         this.position = new Vec3(0,0,-100);
         this.dir = new Vec3(0,0,1);
-
-        this.config = config;
-
-        this.update();
     }
 
     update(){
@@ -45,7 +29,7 @@ class Camera extends Transformable{
             [0,0,1,-this.position.z],
             [0,0,0,               1]
         ]);
-        this.M = this.config.x(r).x(t);
+        this.M = this.projection.x(r).x(t);
     }
 
     lookAt(aim){
@@ -63,7 +47,45 @@ class Camera extends Transformable{
     }
 }
 
+class PerspectiveCamera extends Camera{
+    constructor(deg=90,r=1,n=50,f=100){
+        super();
+        let tan = Math.tan(deg*Math.PI/360);
+        let tann = tan*n;
+
+        this.project(-tann,tann,-tann*r,tann*r,n,f);
+    }
+
+    project(l=-1,r=1,b=-1,t=1,n=1,f=100){
+        this.projection = $M([
+            [2*n,              0,(l+r)/(l-r),          0],
+            [  0,2*n*(t-b)/(r-l),(t+b)/(t-b),          0],
+            [  0,              0,(f+n)/(n-f),f*n*2/(f-n)],
+            [  0,              0,          1,          0]
+        ]);
+        this.update();
+    }
+}
+
+class OrthophotoCamera extends Camera{
+    constructor(deg,r,n,f){
+        super();
+
+        this.project();
+    }
+
+    project(l=-1,r=1,b=-1,t=1,n=1,f=100){
+        this.projection = $M([
+            [2/(r-l),      0,      0,-(l+r)/2],
+            [      0,2/(t-b),      0,-(t+b)/2],
+            [      0,      0,2/(n-f),-(n+f)/2],
+            [      0,      0,      0,       1]
+        ]);
+        this.update();
+    }
+}
+
 module.exports = {
-    CameraConfig : CameraConfig,
-    Camera : Camera
+    PerspectiveCamera : PerspectiveCamera,
+    OrthophotoCamera : OrthophotoCamera
 };

@@ -1,12 +1,12 @@
 /**
  * Created by eason on 16-12-31.
  */
-let {Camera,CameraConfig} = require('./camera');
+let {PerspectiveCamera} = require('./camera');
 let {AmbientLight} = require('./light');
 
 class Scence {
     constructor(){
-        this.camera = new Camera(CameraConfig.build('perspective').init());
+        this.camera = new PerspectiveCamera();
         this.lights = [new AmbientLight()];
         this.objects = [];
     }

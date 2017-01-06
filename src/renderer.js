@@ -43,7 +43,7 @@ class Renderer {
     }
 
     render(scence){
-        this.context.clear(this.width,this.height);
+        this.context.clear(this.width,this.height,new Color(0x000000));
         let renderModels = [];
         for(let object of scence.objects){
             for(let face of object.faces){
@@ -56,14 +56,14 @@ class Renderer {
                         object._M.x(vec.toVec4()).add(object.position.toVec4(0)),
                         scence.camera.M
                     );
-                    // let n = this.shader.vertex(
-                    //     object._M.x(vec.add(face.normal.multi(10)).toVec4()).add(object.position.toVec4(0)),
-                    //     scence.camera.M
-                    // );
-                    renderModel.vecs.push(out);
-                    // renderModel.ns.push([out,n]);
+                    let n = this.shader.vertex(
+                        object._M.x(vec.add(face.normal.multi(face.random)).toVec4()).add(object.position.toVec4(0)),
+                        scence.camera.M
+                    );
+                    renderModel.vecs.push(out.int());
+                    renderModel.ns.push(n);
                 }
-                renderModel.color = this.shader.fragment(Color.copy(face.color),object._M.x(face.normal.toVec4()),...scence.lights);
+                renderModel.color = this.shader.fragment(Color.copy(face.color),object._M.x(face.normal.toVec4()),...scence.lights).int();
                 renderModel.update();
                 renderModels.push(renderModel);
             }
@@ -72,11 +72,15 @@ class Renderer {
         this.context.zsort(renderModels);
 
         for(let renderModel of renderModels){
-            this.context.surface(renderModel.vecs).fill(renderModel.color.int());
-
-            // for(let n of renderModel.ns){
-            //     this.context.line(n[0],n[1]).stroke(new Color(0x000000));
-            // }
+            //this.context.surface(renderModel.vecs).stroke(new Color(0x000000));
+            let vec = new Vec3(0,0,0),n = new Vec3(0,0,0);
+            for(let index=0; index < renderModel.ns.length; index++){
+                vec = vec.add(renderModel.vecs[index]);
+                n = n.add(renderModel.ns[index]);
+            }
+            vec = vec.divide(renderModel.ns.length);
+            n = n.divide(renderModel.ns.length);
+            this.context.line(vec,n).stroke(new Color(0xffffff));
         }
     }
 }
